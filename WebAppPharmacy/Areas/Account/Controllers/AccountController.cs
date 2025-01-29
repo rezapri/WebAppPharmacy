@@ -60,12 +60,14 @@ namespace WebAppPharmacy.Areas.Account.Controllers
                 {
                     FullName = model.Name,
                     Email = model.Email,
-                    UserName = model.Email,
+                    UserName = model.Name,
                 };
 
                 var result = await userManager.CreateAsync(users, model.Password);
+                // Tambahkan user ke role "User"
+                var resultRole = await userManager.AddToRoleAsync(users, "User");
 
-                if (result.Succeeded)
+                if (result.Succeeded && resultRole.Succeeded)
                 {
                     return RedirectToAction("Login", "Account");
                 }
@@ -81,6 +83,12 @@ namespace WebAppPharmacy.Areas.Account.Controllers
             }
 
             return View(model);
+        }
+
+        public async Task<IActionResult> LogOut()
+        {
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Dashboard", new { area = "Dashboard" });
         }
     }
 }
