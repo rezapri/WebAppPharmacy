@@ -11,7 +11,7 @@ namespace WebAppPharmacy.Repositories.RepoCategories
         Task DeleteAsync(long id);
 
         // Pagination method
-        Task<PagedResult<Category>> GetProductsAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize);
+        Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize);
 
     }
 }

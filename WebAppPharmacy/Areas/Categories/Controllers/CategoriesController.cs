@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using WebAppPharmacy.Models;
 using WebAppPharmacy.Repositories.RepoCategories;
 
@@ -73,11 +74,28 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> GetCategories()
+        [HttpPost]
+        public async Task <JsonResult> GetCategories(DataTableAjaxPostModel model)
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            return Json(new { data = categories });
+            var searchKeyword = model.search?.value; // Kata kunci pencarian
+            var sortDescending = model.order != null && model.order.Count > 0 && model.order[0].dir == "desc"; // Arah sorting
+
+            // Ambil nomor halaman (page) dan ukuran halaman (pageSize) dari DataTables
+            var pageNumber = (model.start / model.length) + 1; // Menghitung halaman berdasarkan start dan length
+            var pageSize = model.length; // Ukuran halaman (jumlah data per halaman)
+
+            // Ambil data menggunakan repository
+            var result = await _categoryRepository.GetProductsDataTableAsync(searchKeyword, sortDescending, pageNumber, pageSize);
+
+            return Json(new
+            {
+                draw = model.draw,
+                recordsTotal = result.TotalCount,
+                recordsFiltered = result.TotalCount,
+                data = result.Items,
+            });
         }
+
 
     }
 

@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_LayoutNew";  // Pastikan nama file layout kamu sesuai
 }
-
+<!-- Table -->
 <table id="categoryTable" class="table table-striped">
     <thead>
         <tr>
@@ -11,25 +11,41 @@
         </tr>
     </thead>
     <tbody>
-        <!-- DataTable akan mengisi data di sini melalui AJAX -->
+        <!-- Data akan diisi melalui AJAX -->
     </tbody>
 </table>
 
-<script>
-    console.log("HAI");
-    $(document).ready(function() {
-        $('#categoryTable').DataTable({
-            "processing": true, // Menampilkan proses loading
-            "serverSide": true, // Gunakan server-side processing
-            "ajax": {
-                "url": '@Url.Action("GetCategories", "Categories", new { area = "Categories" })', // Ganti dengan URL controller dan action kamu
-                "type": "GET" // Gunakan metode GET untuk mengambil data
-            },
-            "columns": [
-                { "data": "categoryName" },
-                { "data": "description" },
-                { "data": "actions" }
-            ]
+@section Scripts {
+    <script>
+        debugger;
+        $(document).ready(function() {
+            $('#categoryTable').DataTable({
+                ajax: {
+                    url: "@Url.Action("GetCategories", "Categories")",
+                    type: "POST",
+                },
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                filter: true,
+                lengthChange: true,
+                order: [1, 'asc'],
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csv', // Tombol export CSV
+                        text: 'Export CSV',
+                        className: 'btn btn-sm btn-success' // Menambahkan class untuk styling button
+                    }
+                ],
+                columns: [
+                    { data: 'categoryCode' },  // Sesuaikan dengan nama properti dari JSON
+                    { data: 'categoryName' },  // Sesuaikan dengan nama properti dari JSON
+                    { data: null}
+                ]
+            });
         });
-    });
-</script>
+    </script>
+}
+
+

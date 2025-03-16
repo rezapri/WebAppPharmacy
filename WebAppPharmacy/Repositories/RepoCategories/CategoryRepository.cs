@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebAppPharmacy.Models;
 
 namespace WebAppPharmacy.Repositories.RepoCategories
@@ -45,7 +46,7 @@ namespace WebAppPharmacy.Repositories.RepoCategories
         }
 
         // Implementasi Pagination
-        public async Task<PagedResult<Category>> GetProductsAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize)
+        public async Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize)
         {
             var result = new PagedResult<Category>
             {
