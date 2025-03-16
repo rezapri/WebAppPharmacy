@@ -1,19 +1,75 @@
 ﻿@{
     Layout = "_LayoutNew";  // Pastikan nama file layout kamu sesuai
 }
-<!-- Table -->
-<table id="categoryTable" class="table table-striped">
-    <thead>
-        <tr>
-            <th>Category Name</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Data akan diisi melalui AJAX -->
-    </tbody>
-</table>
+<div class="justify-content-between px-3">
+    <ol class="breadcrumb border-0 m-0">
+        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+        <li class="breadcrumb-item"><a href="/products">Products</a></li>
+        <li class="breadcrumb-item active">Categories</li>
+    </ol>
+</div>
+
+<div class="body">
+    <main class="main">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#categoryCreateModal">
+                                Add Category <i class="bi bi-plus"></i>
+                            </button>
+
+                            <!-- Table -->
+                            <div class="table-responsive">
+                                <table id="categoryTable" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Category Name</th>
+                                            <th>Description</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data akan diisi melalui AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Create Category Modal -->
+<div class="modal fade" id="categoryCreateModal" tabindex="-1" aria-labelledby="categoryCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryCreateModalLabel">Create Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/product-categories" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="category_code" class="form-label">Category Code <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="category_code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category_name" class="form-label">Category Name <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="category_name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Create <i class="bi bi-check"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
@@ -32,16 +88,21 @@
                 order: [1, 'asc'],
                 dom: 'Bfrtip',
                 buttons: [
-                    {
-                        extend: 'csv', // Tombol export CSV
-                        text: 'Export CSV',
-                        className: 'btn btn-sm btn-success' // Menambahkan class untuk styling button
-                    }
+                    'colvis',
+                    'excel',
+                    'print'
                 ],
                 columns: [
                     { data: 'categoryCode' },  // Sesuaikan dengan nama properti dari JSON
                     { data: 'categoryName' },  // Sesuaikan dengan nama properti dari JSON
-                    { data: null}
+                    { 
+                        data: null,
+                        render:function (data, type, row) {
+                            return '<button class="btn btn-xs btn-info btn-detail" value=' + data.id + ' onclick="View(this.value)"><i class="fa fa-search"></i> View </button> ' +
+                               ' <button class="btn btn-xs btn-primary edit" value=' + data.id + ' onclick="Edit(this.value)"><i class="fa fa-edit"></i> Edit </button> ' +
+                               ' <button class="btn btn-xs btn-danger delete" value=' + data.id + ' onclick="Remove(this.value)"><i class="fa fa-trash"></i> Remove </button>';
+                        }
+                    }
                 ]
             });
         });
