@@ -6,7 +6,7 @@ namespace WebAppPharmacy.Data
 {
     public class ApplicationDbContext : IdentityDbContext<Users>
     {
-        public ApplicationDbContext(DbContextOptions options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
