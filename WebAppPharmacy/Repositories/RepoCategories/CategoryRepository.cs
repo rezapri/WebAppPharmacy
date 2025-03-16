@@ -3,7 +3,7 @@ using WebAppPharmacy.Models;
 
 namespace WebAppPharmacy.Repositories.RepoCategories
 {
-    public class CategoryRepository : ICategoriesRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly WebAppPharmacyContext _context;
 

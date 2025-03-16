@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using WebAppPharmacy.Data;
 using WebAppPharmacy.Models;
+using WebAppPharmacy.Repositories.RepoCategories;
 using WebAppPharmacy.Repositories.RepoProduct;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +35,23 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddMvc();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+// Mendaftarkan semua repository secara dinamis
+var repositoryAssembly = Assembly.GetExecutingAssembly();
+
+// Mendaftarkan semua tipe yang di-implementasi oleh IRepository
+var repositoryTypes = repositoryAssembly.GetTypes()
+    .Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces().Any(i => i.Name == "I" + t.Name));
+
+
+foreach (var repoType in repositoryTypes)
+{
+    // Mendaftar semua repository dan implementasinya ke DI container
+    foreach (var interfaceType in repoType.GetInterfaces())
+    {
+        builder.Services.AddScoped(interfaceType, repoType);
+    }
+}
 
 var app = builder.Build();
 
@@ -77,10 +95,17 @@ app.MapAreaControllerRoute(
     areaName: "Dashboard",
     pattern: "Dashboard/{controller=Dashboard}/{action=index}"
 );
+
 app.MapAreaControllerRoute(
     name: "Account",
     areaName: "Account",
     pattern: "{controller=Account}/{action=Login}"
+);
+
+app.MapAreaControllerRoute(
+    name: "Categories",
+    areaName: "Categories",
+    pattern: "Categories/{controller=Categories}/{action=Index}/{id?}"
 );
 
 app.MapControllerRoute(

@@ -2,7 +2,7 @@
 
 namespace WebAppPharmacy.Repositories.RepoCategories
 {
-    public interface ICategoriesRepository
+    public interface ICategoryRepository
     {
         Task<IEnumerable<Category>> GetAllAsync();
         Task<Category> GetByIdAsync(long id);

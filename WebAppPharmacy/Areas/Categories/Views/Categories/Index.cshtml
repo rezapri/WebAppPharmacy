@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "_LayoutNew";  // Pastikan nama file layout kamu sesuai
+}
+
+<table id="categoryTable" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- DataTable akan mengisi data di sini melalui AJAX -->
+    </tbody>
+</table>
+
+<script>
+    console.log("HAI");
+    $(document).ready(function() {
+        $('#categoryTable').DataTable({
+            "processing": true, // Menampilkan proses loading
+            "serverSide": true, // Gunakan server-side processing
+            "ajax": {
+                "url": '@Url.Action("GetCategories", "Categories", new { area = "Categories" })', // Ganti dengan URL controller dan action kamu
+                "type": "GET" // Gunakan metode GET untuk mengambil data
+            },
+            "columns": [
+                { "data": "categoryName" },
+                { "data": "description" },
+                { "data": "actions" }
+            ]
+        });
+    });
+</script>
