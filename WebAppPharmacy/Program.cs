@@ -35,7 +35,7 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddMvc();
-
+builder.Services.AddAutoMapper(typeof(Program));
 // Mendaftarkan semua repository secara dinamis
 var repositoryAssembly = Assembly.GetExecutingAssembly();
 

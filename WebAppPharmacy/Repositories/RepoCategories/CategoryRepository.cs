@@ -45,6 +45,11 @@ namespace WebAppPharmacy.Repositories.RepoCategories
             }
         }
 
+        public async Task<bool> ExistsAsync(string categoryCode)
+        {
+            return await _context.Categories.AnyAsync(c => c.CategoryCode == categoryCode);
+        }
+
         // Implementasi Pagination
         public async Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize)
         {

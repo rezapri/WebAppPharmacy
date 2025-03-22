@@ -9,6 +9,7 @@ namespace WebAppPharmacy.Repositories.RepoCategories
         Task AddAsync(Category product);
         Task UpdateAsync(Category product);
         Task DeleteAsync(long id);
+        Task<bool> ExistsAsync(string categoryCode);
 
         // Pagination method
         Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize);

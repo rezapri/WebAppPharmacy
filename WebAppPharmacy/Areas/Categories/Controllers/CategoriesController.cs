@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
+using WebAppPharmacy.Areas.Categories.Models;
 using WebAppPharmacy.Models;
 using WebAppPharmacy.Repositories.RepoCategories;
 
@@ -9,14 +11,17 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
     public class CategoriesController : Controller
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(ICategoryRepository categoryRepository)
+        public CategoriesController(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
         {
+            ViewData["Title"] = "Add Category";
             return View();
         }
 
@@ -26,14 +31,38 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Category category)
+        public async Task<IActionResult> Create(CategoryViewModel categoryVM)
         {
+            if (await _categoryRepository.ExistsAsync(categoryVM.CategoryCode))
+            {
+                ModelState.AddModelError("CategoryCode", "Category Code already exists.");
+            }
+
             if (ModelState.IsValid)
             {
+                var category = _mapper.Map<Category>(categoryVM);
                 await _categoryRepository.AddAsync(category);
-                return RedirectToAction(nameof(Index));
+
+                // ✅ Return JSON agar AJAX bisa menangani respons
+                return Json(new { success = true });
             }
-            return View(category);
+
+            // ✅ Jika validasi gagal, kirim HTML partial + success: false
+            return Json(new
+            {
+                success = false,
+                errors = ModelState.Where(kvp => kvp.Value.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    )
+            });
+        }
+
+
+        public IActionResult GetCreateModal()
+        {
+            return PartialView("~/Areas/Categories/Views/Categories/Partial/_CreateModalCategories.cshtml");
         }
 
         public async Task<IActionResult> Edit(long id)
@@ -43,7 +72,7 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
             {
                 return NotFound();
             }
-            return View(category);
+            return View();
         }
 
         [HttpPost]

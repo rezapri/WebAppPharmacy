@@ -1,0 +1,38 @@
+﻿@using WebAppPharmacy.Areas.Categories.Models
+@model CategoryViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">@ViewData["Title"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label for="CategoryCode" class="form-label">Category Code</label>
+                        <input type="text" class="form-control" asp-for="CategoryCode" required>
+                        <span class="text-danger" asp-validation-for="CategoryCode"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="CategoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" asp-for="CategoryName" required>
+                        <span class="text-danger" asp-validation-for="CategoryName"></span>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+

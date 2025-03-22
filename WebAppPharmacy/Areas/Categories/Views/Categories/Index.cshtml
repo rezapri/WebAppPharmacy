@@ -1,79 +1,53 @@
 ﻿@{
     Layout = "_LayoutNew";  // Pastikan nama file layout kamu sesuai
 }
-<div class="justify-content-between px-3">
-    <ol class="breadcrumb border-0 m-0">
-        <li class="breadcrumb-item"><a href="/home">Home</a></li>
-        <li class="breadcrumb-item"><a href="/products">Products</a></li>
-        <li class="breadcrumb-item active">Categories</li>
-    </ol>
-</div>
-
-<div class="body">
-    <main class="main">
+<div class="container-fluid">
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/products">Products</a></li>
+                    <li class="breadcrumb-item active">Categories</li>
+                </ol>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#categoryCreateModal">
-                                Add Category <i class="bi bi-plus"></i>
-                            </button>
-
-                            <!-- Table -->
-                            <div class="table-responsive">
-                                <table id="categoryTable" class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Category Name</th>
-                                            <th>Description</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data akan diisi melalui AJAX -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+            <div class="card">
+                <div class="card-body">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                        Add Category <i class="bi bi-plus"></i>
+                    </button>
+                    <hr />
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table id="categoryTable" class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Category Name</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data akan diisi melalui AJAX -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
-</div>
-
-<!-- Create Category Modal -->
-<div class="modal fade" id="categoryCreateModal" tabindex="-1" aria-labelledby="categoryCreateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="categoryCreateModalLabel">Create Category</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="/product-categories" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="category_code" class="form-label">Category Code <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text" name="category_code" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="category_name" class="form-label">Category Name <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text" name="category_name" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Create <i class="bi bi-check"></i></button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
+<!-- Create Category Modal -->
+@await Html.PartialAsync("~/Areas/Categories/Views/Categories/Partial/_CreateModalCategories.cshtml")
+
 @section Scripts {
     <script>
-        debugger;
         $(document).ready(function() {
             $('#categoryTable').DataTable({
                 ajax: {
@@ -98,14 +72,76 @@
                     { 
                         data: null,
                         render:function (data, type, row) {
-                            return '<button class="btn btn-xs btn-info btn-detail" value=' + data.id + ' onclick="View(this.value)"><i class="fa fa-search"></i> View </button> ' +
-                               ' <button class="btn btn-xs btn-primary edit" value=' + data.id + ' onclick="Edit(this.value)"><i class="fa fa-edit"></i> Edit </button> ' +
-                               ' <button class="btn btn-xs btn-danger delete" value=' + data.id + ' onclick="Remove(this.value)"><i class="fa fa-trash"></i> Remove </button>';
+                            return ' <button class="btn btn-sm btn-primary edit" value=' + data.id + ' onclick="Edit(this.value)"><i class="fa fa-edit"></i> Edit </button> ' +
+                               ' <button class="btn btn-sm btn-danger delete" value=' + data.id + ' onclick="Remove(this.value)"><i class="fa fa-trash"></i> Remove </button>';
                         }
                     }
                 ]
             });
+            
+            $("#createForm input").on("input", function () {
+                $(this).siblings(".text-danger").text(""); // Hapus pesan error di input yang berubah
+                });
+
+            $("#createModal").on("hidden.bs.modal", function () {
+                // Reset form fields
+                $("#createForm")[0].reset();
+                // Reset validation messages
+                $(".text-danger").text("");
+            });
+
+            $("#createForm").submit(function (e) {
+                debugger;
+                e.preventDefault(); // Mencegah reload halaman
+
+                var form = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Create", "Categories")",
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // ✅ Tutup modal & refresh tabel jika sukses
+                            $("#createModal").modal("hide");
+                            $("#categoryTable").DataTable().ajax.reload();
+                        } else {
+                            // ✅ Jika ada error validasi, update modal dengan response
+                            $(".text-danger").text(""); // Reset error messages
+                            $.each(response.errors, function (key, messages) {
+                                var input = $('[name="' + key + '"]');
+                                var errorSpan = input.siblings(".text-danger");
+                                errorSpan.text(messages.join(", "));
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert("Error processing request.");
+                    }
+                });
+            });
         });
+
+        function Edit(categoryId) {
+            window.location.href = "@Url.Action("Edit", "Categories")?id=" + categoryId;
+        }
+
+        function Remove(categoryId) {
+            window.location.href = "@Url.Action("Delete", "Categories")?id=" + categoryId;
+        }
+
+        function loadModal() {
+            $.ajax({
+                url: '/Categories/Categories/GetCreateModal',
+                type: 'GET',
+                success: function (data) {
+                    $('#modalContainer').html(data);
+                    $('#createModal').modal('show');
+                },
+                error: function () {
+                    alert('Failed to load modal.');
+                }
+            });
+        }
     </script>
 }
 
