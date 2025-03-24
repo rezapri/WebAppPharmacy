@@ -31,6 +31,7 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CategoryViewModel categoryVM)
         {
             if (await _categoryRepository.ExistsAsync(categoryVM.CategoryCode))
@@ -72,18 +73,27 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
             {
                 return NotFound();
             }
-            return View();
+            var categoryView = _mapper.Map<CategoryViewModel>(category);
+            return View(categoryView);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Category category)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CategoryViewModel categoryVM)
         {
+            // Cek apakah CategoryCode sudah dipakai oleh kategori lain (dengan ID berbeda)
+            if (await _categoryRepository.ExistsAsync(categoryVM.CategoryCode, categoryVM.Id))
+            {
+                ModelState.AddModelError("CategoryCode", "Category Code already exists.");
+            }
+
             if (ModelState.IsValid)
             {
+                var category = _mapper.Map<Category>(categoryVM);
                 await _categoryRepository.UpdateAsync(category);
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(categoryVM);
         }
 
         public async Task<IActionResult> Delete(long id)
@@ -93,10 +103,12 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
             {
                 return NotFound();
             }
-            return View(category);
+            var categoryView = _mapper.Map<CategoryViewModel>(category);
+            return Json(categoryView);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             await _categoryRepository.DeleteAsync(id);
@@ -107,14 +119,27 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
         public async Task <JsonResult> GetCategories(DataTableAjaxPostModel model)
         {
             var searchKeyword = model.search?.value; // Kata kunci pencarian
-            var sortDescending = model.order != null && model.order.Count > 0 && model.order[0].dir == "desc"; // Arah sorting
+            // Cek apakah ada order data
+            string sortColumn = "Id"; // Default sorting pakai kolom ID
+            bool sortDescending = false;
 
+            if (model.order != null && model.order.Count > 0)
+            {
+                int columnIndex = model.order[0].column; // Ambil index kolom yang diurutkan
+                sortDescending = model.order[0].dir == "desc";
+
+                // Ambil nama kolom dari daftar columns[] yang dikirim DataTables
+                if (model.columns != null && model.columns.Count > columnIndex)
+                {
+                    sortColumn = model.columns[columnIndex].data; // Misalnya: "CategoryName"
+                }
+            }
             // Ambil nomor halaman (page) dan ukuran halaman (pageSize) dari DataTables
             var pageNumber = (model.start / model.length) + 1; // Menghitung halaman berdasarkan start dan length
             var pageSize = model.length; // Ukuran halaman (jumlah data per halaman)
 
             // Ambil data menggunakan repository
-            var result = await _categoryRepository.GetProductsDataTableAsync(searchKeyword, sortDescending, pageNumber, pageSize);
+            var result = await _categoryRepository.GetProductsDataTableAsync(searchKeyword, sortColumn, sortDescending, pageNumber, pageSize);
 
             return Json(new
             {

@@ -50,8 +50,14 @@ namespace WebAppPharmacy.Repositories.RepoCategories
             return await _context.Categories.AnyAsync(c => c.CategoryCode == categoryCode);
         }
 
+        public async Task<bool> ExistsAsync(string categoryCode, long excludeId)
+        {
+            return await _context.Categories.AnyAsync(c => c.CategoryCode == categoryCode && c.Id != excludeId);
+        }
+
+
         // Implementasi Pagination
-        public async Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize)
+        public async Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize)
         {
             var result = new PagedResult<Category>
             {
@@ -68,8 +74,14 @@ namespace WebAppPharmacy.Repositories.RepoCategories
                     query = query.Where(p => p.CategoryName.Contains(searchKeyword));
                 }
 
-                // Sorting berdasarkan nama produk
-                query = sortDescending ? query.OrderByDescending(p => p.CategoryName) : query.OrderBy(p => p.CategoryName);
+                // Sorting berdasarkan kolom dinamis dari DataTables
+                query = sortColumn switch
+                {
+                    "CategoryName" => sortDescending ? query.OrderByDescending(p => p.CategoryName) : query.OrderBy(p => p.CategoryName),
+                    "CategoryCode" => sortDescending ? query.OrderByDescending(p => p.CategoryCode) : query.OrderBy(p => p.CategoryCode),
+                    _ => sortDescending ? query.OrderByDescending(p => p.Id) : query.OrderBy(p => p.Id) // Default: Order by Id
+                };
+
 
                 result.TotalCount = await query.CountAsync(); // Mendapatkan total produk setelah filter dan sort
 

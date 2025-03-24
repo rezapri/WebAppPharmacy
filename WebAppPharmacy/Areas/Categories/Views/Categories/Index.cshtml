@@ -3,7 +3,7 @@
 }
 <div class="container-fluid">
     <div class="row">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
             <div class="container-fluid">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="/home">Home</a></li>
@@ -45,6 +45,9 @@
 
 <!-- Create Category Modal -->
 @await Html.PartialAsync("~/Areas/Categories/Views/Categories/Partial/_CreateModalCategories.cshtml")
+<!-- Delete Category Modal -->
+@await Html.PartialAsync("~/Areas/Categories/Views/Categories/Partial/_DeleteCategoryModal.cshtml")
+
 
 @section Scripts {
     <script>
@@ -125,10 +128,6 @@
             window.location.href = "@Url.Action("Edit", "Categories")?id=" + categoryId;
         }
 
-        function Remove(categoryId) {
-            window.location.href = "@Url.Action("Delete", "Categories")?id=" + categoryId;
-        }
-
         function loadModal() {
             $.ajax({
                 url: '/Categories/Categories/GetCreateModal',
@@ -142,6 +141,24 @@
                 }
             });
         }
+
+        function Remove(categoryId) {
+            $.ajax({
+                url: "/Categories/Categories/Delete/" + categoryId,
+                type: "GET",
+                success: function (data) {
+                    if (data) {
+                        $("#deleteCategoryId").val(data.id);
+                        $("#deleteCategoryName").text(data.categoryName);
+                        $("#deleteModal").modal("show");
+                    }
+                },
+                error: function () {
+                    alert("Failed to load category data.");
+                }
+            });
+        }
+
     </script>
 }
 
