@@ -1,4 +1,5 @@
-﻿using WebAppPharmacy.Models;
+﻿using WebAppPharmacy.Areas.Products.Models;
+using WebAppPharmacy.Models;
 
 namespace WebAppPharmacy.Repositories.RepoProduct
 {
@@ -11,6 +12,6 @@ namespace WebAppPharmacy.Repositories.RepoProduct
         Task DeleteAsync(long id);
 
         // Pagination method
-        Task<PagedResult<Product>> GetProductsAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize);
+        Task<PagedResult<ProductListViewModel>> GetProductsDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize);
     }
 }

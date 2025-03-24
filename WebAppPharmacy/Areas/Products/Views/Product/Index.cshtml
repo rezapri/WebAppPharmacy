@@ -1,0 +1,179 @@
+﻿@{
+    Layout = "_LayoutNew";  // Pastikan nama file layout kamu sesuai
+}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+            <div class="container-fluid">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                    <li class="breadcrumb-item active">Products</li>
+                </ol>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                        Tambah Produk <i class="bi bi-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                        Hapus yang dipilih <i class="bi bi-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                        Impor Produk <i class="bi bi-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                        Unduh Template <i class="bi bi-plus"></i>
+                    </button>
+                    <hr />
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table id="productTable" class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Gambar</th>
+                                    <th>Kategori</th>
+                                    <th>Kode</th>
+                                    <th>Nama Produk</th>
+                                    <th>Modal</th>
+                                    <th>Jual</th>
+                                    <th>Banyak</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data akan diisi melalui AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#productTable').DataTable({
+                ajax: {
+                    url: "@Url.Action("GetProductList", "Product")",
+                    type: "POST",
+                },
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                filter: true,
+                lengthChange: true,
+                order: [1, 'asc'],
+                dom: 'Bfrtip',
+                buttons: [
+                    'colvis',
+                    'excel',
+                    'print'
+                ],
+                columns: [
+                    { data: 'imageUrl', title: 'Gambar', render: function(data) {
+                        return data ? `<img src="${data}" class="img-thumbnail" width="50">` : 'No Image';
+                    }},
+                    { data: 'categoryName', title: 'Kategori' },
+                    { data: 'productCode', title: 'Kode' },
+                    { data: 'productName', title: 'Nama Produk' },
+                    { data: 'productCost', title: 'Modal', render: $.fn.dataTable.render.number(',', '.', 2, 'Rp ') },
+                    { data: 'productPrice', title: 'Jual', render: $.fn.dataTable.render.number(',', '.', 2, 'Rp ') },
+                    { data: 'productQuantity', title: 'Banyak' },
+                    {
+                        data: null,
+                        render:function (data, type, row) {
+                            return ' <button class="btn btn-sm btn-primary edit" value=' + data.id + ' onclick="Edit(this.value)"><i class="fa fa-edit"></i> Edit </button> ' +
+                               ' <button class="btn btn-sm btn-danger delete" value=' + data.id + ' onclick="Remove(this.value)"><i class="fa fa-trash"></i> Remove </button>';
+                        }
+                    }
+                ]
+            });
+
+            $("#createForm input").on("input", function () {
+                $(this).siblings(".text-danger").text(""); // Hapus pesan error di input yang berubah
+                });
+
+            $("#createModal").on("hidden.bs.modal", function () {
+                // Reset form fields
+                $("#createForm")[0].reset();
+                // Reset validation messages
+                $(".text-danger").text("");
+            });
+
+            $("#createForm").submit(function (e) {
+                debugger;
+                e.preventDefault(); // Mencegah reload halaman
+
+                var form = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Create", "Categories")",
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // ✅ Tutup modal & refresh tabel jika sukses
+                            $("#createModal").modal("hide");
+                            $("#categoryTable").DataTable().ajax.reload();
+                        } else {
+                            // ✅ Jika ada error validasi, update modal dengan response
+                            $(".text-danger").text(""); // Reset error messages
+                            $.each(response.errors, function (key, messages) {
+                                var input = $('[name="' + key + '"]');
+                                var errorSpan = input.siblings(".text-danger");
+                                errorSpan.text(messages.join(", "));
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert("Error processing request.");
+                    }
+                });
+            });
+        });
+
+        function Edit(categoryId) {
+            window.location.href = "@Url.Action("Edit", "Categories")?id=" + categoryId;
+        }
+
+        function loadModal() {
+            $.ajax({
+                url: '/Categories/Categories/GetCreateModal',
+                type: 'GET',
+                success: function (data) {
+                    $('#modalContainer').html(data);
+                    $('#createModal').modal('show');
+                },
+                error: function () {
+                    alert('Failed to load modal.');
+                }
+            });
+        }
+
+        function Remove(categoryId) {
+            $.ajax({
+                url: "/Categories/Categories/Delete/" + categoryId,
+                type: "GET",
+                success: function (data) {
+                    if (data) {
+                        $("#deleteCategoryId").val(data.id);
+                        $("#deleteCategoryName").text(data.categoryName);
+                        $("#deleteModal").modal("show");
+                    }
+                },
+                error: function () {
+                    alert("Failed to load category data.");
+                }
+            });
+        }
+
+    </script>
+}
+
+

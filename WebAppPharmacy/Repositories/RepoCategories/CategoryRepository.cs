@@ -57,7 +57,7 @@ namespace WebAppPharmacy.Repositories.RepoCategories
 
 
         // Implementasi Pagination
-        public async Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize)
+        public async Task<PagedResult<Category>> GetCategoriesDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize)
         {
             var result = new PagedResult<Category>
             {
@@ -75,7 +75,7 @@ namespace WebAppPharmacy.Repositories.RepoCategories
                 }
 
                 // Sorting berdasarkan kolom dinamis dari DataTables
-                query = sortColumn switch
+                query = (sortColumn ?? "Id") switch
                 {
                     "CategoryName" => sortDescending ? query.OrderByDescending(p => p.CategoryName) : query.OrderBy(p => p.CategoryName),
                     "CategoryCode" => sortDescending ? query.OrderByDescending(p => p.CategoryCode) : query.OrderBy(p => p.CategoryCode),

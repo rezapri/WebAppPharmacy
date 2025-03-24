@@ -9,13 +9,9 @@
 
   <ItemGroup>
     <Compile Remove="Areas\Penjualan\**" />
-    <Compile Remove="Areas\Product\**" />
     <Content Remove="Areas\Penjualan\**" />
-    <Content Remove="Areas\Product\**" />
     <EmbeddedResource Remove="Areas\Penjualan\**" />
-    <EmbeddedResource Remove="Areas\Product\**" />
     <None Remove="Areas\Penjualan\**" />
-    <None Remove="Areas\Product\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,8 +30,6 @@
 
   <ItemGroup>
     <Folder Include="Areas\Dashboard\Models\" />
-    <Folder Include="Areas\Products\Controllers\" />
-    <Folder Include="Areas\Products\Views\" />
   </ItemGroup>
 
 </Project>

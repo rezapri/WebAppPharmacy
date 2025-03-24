@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using WebAppPharmacy.Areas.Categories.Models;
@@ -7,6 +8,7 @@ using WebAppPharmacy.Repositories.RepoCategories;
 
 namespace WebAppPharmacy.Areas.Categories.Controllers
 {
+    [Authorize]
     [Area("Categories")]
     public class CategoriesController : Controller
     {
@@ -139,7 +141,7 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
             var pageSize = model.length; // Ukuran halaman (jumlah data per halaman)
 
             // Ambil data menggunakan repository
-            var result = await _categoryRepository.GetProductsDataTableAsync(searchKeyword, sortColumn, sortDescending, pageNumber, pageSize);
+            var result = await _categoryRepository.GetCategoriesDataTableAsync(searchKeyword, sortColumn, sortDescending, pageNumber, pageSize);
 
             return Json(new
             {
@@ -149,8 +151,6 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
                 data = result.Items,
             });
         }
-
-
     }
 
 }

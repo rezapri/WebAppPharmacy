@@ -13,7 +13,7 @@ namespace WebAppPharmacy.Repositories.RepoCategories
         Task<bool> ExistsAsync(string categoryCode);
 
         // Pagination method
-        Task<PagedResult<Category>> GetProductsDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize);
+        Task<PagedResult<Category>> GetCategoriesDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize);
 
     }
 }

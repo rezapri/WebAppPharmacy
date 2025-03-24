@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using WebAppPharmacy.Areas.Products.Models;
 using WebAppPharmacy.Data;
 using WebAppPharmacy.Models;
 
@@ -7,10 +9,12 @@ namespace WebAppPharmacy.Repositories.RepoProduct
     public class ProductRepository : IProductRepository
     {
         private readonly WebAppPharmacyContext _context;
+        private readonly IMapper _mapper;
 
-        public ProductRepository(WebAppPharmacyContext context)
+        public ProductRepository(WebAppPharmacyContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync()
@@ -46,16 +50,18 @@ namespace WebAppPharmacy.Repositories.RepoProduct
         }
 
         // Implementasi Pagination
-        public async Task<PagedResult<Product>> GetProductsAsync(string searchKeyword, bool sortDescending, int pageNumber, int pageSize)
+        public async Task<PagedResult<ProductListViewModel>> GetProductsDataTableAsync(string searchKeyword, string sortColumn, bool sortDescending, int pageNumber, int pageSize)
         {
-            var result = new PagedResult<Product>
+            var result = new PagedResult<ProductListViewModel>
             {
                 Status = "success", // Atur status awal
             };
 
             try
             {
-                var query = _context.Products.AsQueryable();
+                var query = _context.Products
+                    .Include(p => p.Category) // Pastikan relasi ke kategori di-load
+                    .AsQueryable();
 
                 // Jika ada keyword pencarian
                 if (!string.IsNullOrEmpty(searchKeyword))
@@ -64,15 +70,25 @@ namespace WebAppPharmacy.Repositories.RepoProduct
                 }
 
                 // Sorting berdasarkan nama produk
-                query = sortDescending ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName);
+                query = (sortColumn.ToLower() ?? "Id") switch
+                {
+                    "productname" => sortDescending ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName),
+                    "categoryname" => sortDescending ? query.OrderByDescending(p => p.Category.CategoryName) : query.OrderBy(p => p.Category.CategoryName),
+                    "price" => sortDescending ? query.OrderByDescending(p => p.ProductPrice) : query.OrderBy(p => p.ProductPrice),
+                    _ => sortDescending ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName) // Default sorting
+                };
 
                 result.TotalCount = await query.CountAsync(); // Mendapatkan total produk setelah filter dan sort
 
                 // Paginasi
-                result.Items = await query
+                // Paginasi
+                var products = await query
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
+
+                // Mapping ke ViewModel
+                result.Items = _mapper.Map<List<ProductListViewModel>>(products);
             }
             catch (Exception ex)
             {
