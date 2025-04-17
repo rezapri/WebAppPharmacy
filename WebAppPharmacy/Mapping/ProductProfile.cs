@@ -11,6 +11,10 @@ namespace WebAppPharmacy.Mapping
             CreateMap<Product, ProductListViewModel>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
                 .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode ?? "-"));
+            CreateMap<Product, ProductViewModel>()
+                .ForMember(dest => dest.Categories, opt => opt.Ignore()); // karena kita ambil categories manual dari controller
+            CreateMap<ProductViewModel, Product>();
+
         }
     }
 }

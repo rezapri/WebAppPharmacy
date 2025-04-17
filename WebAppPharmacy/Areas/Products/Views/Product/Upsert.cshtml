@@ -1,0 +1,168 @@
+﻿@using WebAppPharmacy.Areas.Products.Models
+@model ProductViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_LayoutNew";  // Pastikan nama file layout kamu sesuai
+    var isEdit = Model.Id > 0;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
+            <div class="container-fluid">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/products">Products</a></li>
+                    <li class="breadcrumb-item"><a href="/products">Categories</a></li>
+                    <li class="breadcrumb-item active">@(isEdit ? "Edit Product" : "Add Product")</li>
+                </ol>
+            </div>
+        </nav>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md">
+            <!-- Atur lebar form agar lebih kecil -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">@(isEdit ? "Edit Product" : "Add Product")</h5>
+                    <form asp-action="Upsert" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ProductName" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductName)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductName" class="form-control" />
+                                <span asp-validation-for="ProductName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ProductCode" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductCode)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductCode" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="CategoryId" class="form-label">
+                                    @Html.DisplayNameFor(m => m.CategoryId)<span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ProductBarcodeSymbology" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductBarcodeSymbology)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductBarcodeSymbology" class="form-control" placeholder="Belum tau listnya" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ProductCost" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductCost)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductCost" type="number" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ProductPrice" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductPrice)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductPrice" type="number" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ProductQuantity" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductQuantity)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductQuantity" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ProductStockAlert" class="form-label">
+                                    @Html.DisplayNameFor(m => m.ProductStockAlert)<span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="ProductStockAlert" type="number" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="ProductOrderTax" class="form-label"></label>
+                                <input asp-for="ProductOrderTax" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="ProductTaxType" class="form-label"></label>
+                                <input asp-for="ProductTaxType" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="ProductUnit" class="form-label"></label>
+                                <select asp-for="ProductUnit" asp-items="Model.UnitList" class="form-select">
+                                    <option value="">-- Pilih Satuan --</option>
+                                </select>
+                                <span asp-validation-for="ProductUnit" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ExpirationDate" class="form-label"></label>
+                                <input asp-for="ExpirationDate" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Manufacturer" class="form-label"></label>
+                                <input asp-for="Manufacturer" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="BatchNumber" class="form-label"></label>
+                                <input asp-for="BatchNumber" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="IsPrescriptionRequired" class="form-label">Resep Dokter Diperlukan</label>
+                                <select asp-for="IsPrescriptionRequired" class="form-select">
+                                    <option value="1">Ya</option>
+                                    <option value="0">Tidak</option>
+                                </select>
+                            </div>
+                        </div>
+                       
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="IsPublished" class="form-label">Tampilkan Produk</label>
+                                <select asp-for="IsPublished" class="form-select">
+                                    <option value="1">Ya</option>
+                                    <option value="0">Tidak</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="StorageInstructions" class="form-label"></label>
+                                <textarea asp-for="StorageInstructions" class="form-control" ></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ProductNote" class="form-label"></label>
+                            <textarea asp-for="ProductNote" class="form-control"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <a href="/products" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Save")</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

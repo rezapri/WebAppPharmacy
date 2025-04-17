@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using WebAppPharmacy.Areas.Products.Models;
 using WebAppPharmacy.Models;
 using WebAppPharmacy.Repositories.RepoCategories;
 using WebAppPharmacy.Repositories.RepoProduct;
+using WebAppPharmacy.Repositories.RepoUnit;
 
 namespace WebAppPharmacy.Areas.Products.Controllers
 {
@@ -12,11 +16,22 @@ namespace WebAppPharmacy.Areas.Products.Controllers
     public class ProductController : Controller
     {
         private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitRepository _unitsRepository;
         private readonly IMapper _mapper;
-        public ProductController(IProductRepository productRepository,IMapper mapper)
+        private readonly WebAppPharmacyContext _webAppPharmacyContext;
+
+        public ProductController(IProductRepository productRepository,
+                                 ICategoryRepository categoryRepository,
+                                 IUnitRepository unitsRepository,
+                                 IMapper mapper,
+                                 WebAppPharmacyContext webAppPharmacyContext)
         {
             _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
+            _unitsRepository = unitsRepository;
             _mapper = mapper;
+            _webAppPharmacyContext = webAppPharmacyContext;
         }
 
         public IActionResult Index()
@@ -58,5 +73,50 @@ namespace WebAppPharmacy.Areas.Products.Controllers
                 data = result.Items,
             });
         }
+
+        [HttpGet]
+        public async Task<IActionResult>Upsert(long? id)
+        {
+            var categories = await _categoryRepository.GetAllAsync();
+            var units = await _unitsRepository.GetAllAsync();
+
+            var vm = new ProductViewModel
+            {
+                Categories = categories.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.CategoryName
+                }).ToList(),
+                UnitList = units.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.Name + " | " + u.ShortName
+                }).ToList()
+            };
+
+            if (id == null)
+            {
+                // Mode Tambah
+                return View(vm);
+            }
+
+            var product = await _productRepository.GetByIdAsync(id.Value);
+            if (product == null) return NotFound();
+
+            // Mapping manual ke ViewModel
+            vm.Id = product.Id;
+            vm.ProductName = product.ProductName;
+            vm.ProductCode = product.ProductCode;
+            vm.ProductQuantity = product.ProductQuantity;
+            vm.ProductCost = product.ProductCost;
+            vm.ProductPrice = product.ProductPrice;
+            vm.IsPrescriptionRequired = product.IsPrescriptionRequired;
+            vm.IsPublished = product.IsPublished;
+            vm.CategoryId = product.CategoryId;
+            vm.ProductUnit = product.ProductUnit;
+
+            return View(vm);
+        }
+
     }
 }

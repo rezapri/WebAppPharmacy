@@ -14,8 +14,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<WebAppPharmacyContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
    .AddCookie();
@@ -38,7 +37,6 @@ builder.Services.AddMvc();
 builder.Services.AddAutoMapper(typeof(Program));
 // Mendaftarkan semua repository secara dinamis
 var repositoryAssembly = Assembly.GetExecutingAssembly();
-
 // Mendaftarkan semua tipe yang di-implementasi oleh IRepository
 var repositoryTypes = repositoryAssembly.GetTypes()
     .Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces().Any(i => i.Name == "I" + t.Name));

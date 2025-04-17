@@ -21,7 +21,7 @@ namespace WebAppPharmacy.Areas.Categories.Controllers
             _mapper = mapper;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             ViewData["Title"] = "Add Category";
             return View();

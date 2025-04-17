@@ -20,13 +20,13 @@
                     <button type="button" class="btn btn-primary" onclick="loadModal()">
                         Tambah Produk <i class="bi bi-plus"></i>
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                    <button type="button" class="btn btn-primary" onclick="">
                         Hapus yang dipilih <i class="bi bi-plus"></i>
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                    <button type="button" class="btn btn-primary" onclick="">
                         Impor Produk <i class="bi bi-plus"></i>
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="loadModal()">
+                    <button type="button" class="btn btn-primary" onclick="">
                         Unduh Template <i class="bi bi-plus"></i>
                     </button>
                     <hr />
@@ -143,17 +143,7 @@
         }
 
         function loadModal() {
-            $.ajax({
-                url: '/Categories/Categories/GetCreateModal',
-                type: 'GET',
-                success: function (data) {
-                    $('#modalContainer').html(data);
-                    $('#createModal').modal('show');
-                },
-                error: function () {
-                    alert('Failed to load modal.');
-                }
-            });
+            window.location.href = "@Url.Action("Upsert", "Product")";
         }
 
         function Remove(categoryId) {

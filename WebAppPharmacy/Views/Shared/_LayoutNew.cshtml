@@ -84,8 +84,8 @@
                         <div class="collapse" id="ProdukLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="@Url.Action("Index", "Categories", new { area = "Categories" })">Kategori</a>
-                                <a class="nav-link" href="layout-sidenav-light.html">Buat Produk</a>
-                                <a class="nav-link" href="@Url.Action("Index", "Product", new { area = "Product" })">Daftar Produk</a>
+                                <a class="nav-link" href="@Url.Action("Upsert", "Product", new { area = "Products" })">Buat Produk</a>
+                                <a class="nav-link" href="@Url.Action("Index", "Product", new { area = "Products" })">Daftar Produk</a>
                                 <a class="nav-link" href="layout-sidenav-light.html">Print Barcode</a>
                             </nav>
                         </div>
@@ -262,7 +262,7 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> *@
     
     <!-- JS untuk DataTables Buttons, JSZip dan PDFMake -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.2.0/jszip.min.js"></script>
